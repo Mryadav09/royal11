@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ROYAL 9X PANEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    
+    body, html { 
+        width: 100%; 
+        height: 100%; 
+        overflow: hidden; 
+        background: #000; 
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* === LOGIN SCREEN (ELECTRIC PURPLE THEME) === */
+    #login-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #050011; z-index: 10000000;
+        display: flex; justify-content: center; align-items: center; flex-direction: column;
+    }
+    .login-box {
+        width: 280px; background: #0a001a;
+        border: 2px solid #b500ff; border-radius: 20px;
+        padding: 30px 20px; text-align: center;
+        box-shadow: 0 0 20px rgba(181, 0, 255, 0.4), inset 0 0 15px rgba(181, 0, 255, 0.2);
+        display: flex; flex-direction: column; gap: 15px;
+    }
+    .login-title {
+        font-family: 'Creepster', cursive; font-size: 26px; color: #ffffff;
+        text-shadow: 0 0 10px #b500ff, 0 0 5px #b500ff; letter-spacing: 2px; margin-bottom: 5px;
+    }
+    #login-pass {
+        width: 100%; padding: 12px; background: rgba(181, 0, 255, 0.1);
+        border: 1px solid #b500ff; border-radius: 10px; color: #fff;
+        font-family: 'Orbitron', sans-serif; text-align: center; outline: none;
+        font-size: 14px; letter-spacing: 2px; box-shadow: inset 0 0 5px rgba(181, 0, 255, 0.3);
+    }
+    #login-pass::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .login-btn {
+        width: 100%; padding: 12px; border: none; border-radius: 10px;
+        background: linear-gradient(180deg, #b500ff 0%, #5900b3 100%);
+        color: #ffffff; font-family: 'Creepster', cursive; font-size: 18px;
+        letter-spacing: 2px; cursor: pointer; box-shadow: 0 0 15px rgba(181, 0, 255, 0.6);
+        transition: transform 0.1s;
+    }
+    .login-btn:active { transform: scale(0.95); }
+    #login-error {
+        color: #ff0055; font-size: 12px; font-weight: bold; font-family: 'Orbitron', sans-serif;
+        min-height: 15px; text-shadow: 0 0 5px rgba(255,0,85,0.5);
+    }
+
+    /* === HIDDEN MAIN ELEMENTS INITIAL STATE === */
+    #bg-iframe, #mod-menu-container {
+        display: none;
+    }
+
+    /* === BACKGROUND WEBSITE IFRAME === */
+    #bg-iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
+    #drag-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 9998; display: none; }
+
+    /* === FLOATING TOOL MOD MENU === */
+    #mod-menu-container { position: absolute; top: 20%; left: 10%; z-index: 9999; }
+    #main-wrapper { display: none; align-items: center; justify-content: center; }
+
+    #main {
+        width: 225px; height: 250px; background-color: transparent; 
+        display: none; flex-direction: column; gap: 8px; position: relative;
+        padding: 10px; border: none; border-radius: 25px; 
+        overflow: hidden; box-shadow: 0 0 15px rgba(181, 0, 255, 0.5);
+        cursor: move; 
+    }
+
+    @keyframes snakeBorderSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #main::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: conic-gradient(transparent 70%, #b500ff 100%);
+        animation: snakeBorderSpin 2s linear infinite; z-index: -2;
+    }
+    .main-inner-solid {
+        position: absolute; inset: 4px; background-color: #1a0033;
+        background-image: linear-gradient(rgba(181, 0, 255, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(181, 0, 255, 0.15) 1px, transparent 1px);
+        background-size: 15px 15px; border-radius: 21px; z-index: -1;
+    }
+
+    @keyframes sweepReflection { 0% { transform: translateX(-150%) skewX(-30deg); } 30% { transform: translateX(250%) skewX(-30deg); } 100% { transform: translateX(250%) skewX(-30deg); } }
+    #main::after {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.05) 60%, transparent);
+        transform: translateX(-150%) skewX(-30deg); animation: sweepReflection 8s ease-in-out infinite; pointer-events: none; z-index: 999;
+    }
+
+    .header { display: flex; justify-content: center; align-items: center; width: 100%; z-index: 2; margin: 0; }
+    .title-text { font-family: 'Creepster', cursive; font-size: 17px; color: #ffffff; text-shadow: 0 0 10px #b500ff, 0 0 5px #b500ff; letter-spacing: 1px; text-align: center; width: 100%; white-space: nowrap; margin: 0; }
+
+    .sys-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; 
+        background: rgba(0, 0, 0, 0.7); border: 1px solid #b500ff; border-radius: 12px; 
+        padding: 4px 8px; margin: 0; color: #ffffff; font-family: 'Orbitron', sans-serif; 
+        font-size: 8px; font-weight: 700; text-shadow: 0 0 5px #b500ff; box-shadow: 0 0 6px rgba(181, 0, 255, 0.5), inset 0 0 4px rgba(181, 0, 255, 0.5); 
+        backdrop-filter: blur(5px); z-index: 2; flex-shrink: 0; }
+
+    @keyframes blink { 0%, 100% { opacity: 1; box-shadow: 0 0 6px #b500ff; } 50% { opacity: 0.2; box-shadow: none; } }
+    .live-dot { display: inline-block; width: 5px; height: 5px; background-color: #b500ff; border-radius: 50%; animation: blink 1s infinite; margin-right: 4px; }
+
+    #content { flex: 1; display: flex; flex-direction: column; z-index: 2; width: 100%; margin: 0; min-height: 0; pointer-events: none; }
+    #content > * { pointer-events: auto; } 
+
+    .ai-result-box { width: 100%; height: 125px; min-height: 125px; max-height: 125px; 
+        border: 1px solid #b500ff; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; margin: 0 0 8px 0; box-sizing: border-box; overflow: hidden; 
+        background-color: #1a0033; background-image: url('box_bg.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; 
+        box-shadow: 0 0 8px rgba(181, 0, 255, 0.8), inset 0 0 8px rgba(181, 0, 255, 0.6); } 
+
+    .text-group { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; margin: 0; padding: 5px 0; }
+    .status-title { font-family: 'Creepster', cursive; font-size: 22px; color: #ffffff; text-shadow: 0 0 10px rgba(181, 0, 255, 0.9); letter-spacing: 2px; text-align: center; margin: 0; line-height: 1.1; }
+    .status-sub { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 800; color: #ffffff; letter-spacing: 1px; text-align: center; margin: 0; line-height: 1.2; }
+    .status-desc { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; color: #ffffff; text-align: center; letter-spacing: 0.5px; margin: 0; margin-top: 2px; }
+
+    @keyframes fullBoxScan { 0% { top: -30px; } 100% { top: 125px; } }
+    .full-box-scan-line {
+        position: absolute; left: 0; width: 100%; height: 30px;
+        background: linear-gradient(180deg, transparent, rgba(181, 0, 255, 0.5));
+        border-bottom: 2px solid #ffffff; box-shadow: 0 5px 15px rgba(181, 0, 255, 0.8);
+        animation: fullBoxScan 1.5s linear infinite; z-index: 1; pointer-events: none;
+    }
+    .matrix-code {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        font-family: monospace; font-size: 12px; color: #ffffff;
+        line-height: 20px; overflow: hidden; z-index: 0; text-align: left;
+        padding: 12px; box-sizing: border-box; font-weight: bold; text-shadow: 0 0 5px #b500ff; white-space: nowrap;
+    }
+
+    @keyframes btnSweep { 0% { transform: translateX(-150%) skewX(-30deg); } 40% { transform: translateX(250%) skewX(-30deg); } 100% { transform: translateX(250%) skewX(-30deg); } }
+    .buttons-area { display: flex; gap: 8px; width: 100%; height: 35px; z-index: 2; margin: 0; flex-shrink: 0; }
+    .btn { flex: 1; padding: 0; height: 100%; border-radius: 10px; font-family: 'Creepster', cursive; font-size: 14px; letter-spacing: 1.5px; cursor: pointer; border: none; transition: transform 0.1s; position: relative; overflow: hidden; }
+    .btn::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 60%, transparent); animation: btnSweep 6s infinite; pointer-events: none; z-index: 5; }
+    .btn:active { transform: scale(0.95); }
+    .btn-action { background: linear-gradient(180deg, #b500ff 0%, #5900b3 100%); color: #ffffff; box-shadow: 0 0 8px rgba(181, 0, 255, 0.6); text-shadow: none; }
+    .btn-hide { background: #1a1a1a; color: #ffffff; border: 1px solid #333; box-shadow: 0 0 6px rgba(0,0,0,0.5); }
+
+    .ai-result-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 0; width: 100%; }
+    .num-container { position: relative; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: transparent; margin: 0; flex-shrink: 0 !important; box-sizing: border-box; z-index: 5; }
+    .num-small { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; }
+    .num-big { width: 50px !important; height: 50px !important; min-width: 50px !important; min-height: 50px !important; }
+    .result-num-img { width: 100%; height: 100%; object-fit: contain; z-index: 10; border-radius: 50%; display: block; position: relative; background: radial-gradient(circle, #2a004d 0%, #000000 100%); }
+
+    @keyframes premiumCircleSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .num-spin-border { position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; border-radius: 50%; border: 2px solid transparent; border-top: 2px solid #b500ff; border-right: 2px solid #b500ff; box-shadow: 0 0 10px #b500ff; animation: premiumCircleSpin 1s linear infinite; z-index: 15; pointer-events: none; box-sizing: border-box; }
+    .num-spin-border::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid transparent; border-bottom: 2px solid #ffffff; border-left: 2px solid #ffffff; box-shadow: 0 0 5px #ffffff; animation: premiumCircleSpin 1.5s linear infinite reverse; box-sizing: border-box; }
+
+    .period-wrapper { width: 100%; display: flex; justify-content: center; z-index: 2; margin-top: 15px; } 
+    .glass-period-box { background: rgba(0, 0, 0, 0.75); border: 1px solid #b500ff; border-radius: 12px; padding: 3px 12px; color: #ffffff; font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 5px #b500ff; box-shadow: 0 0 6px rgba(181, 0, 255, 0.5), inset 0 0 4px rgba(181, 0, 255, 0.5); text-align: center; backdrop-filter: blur(5px); margin: 0; }
+
+    #mini{ width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box; cursor: move; background: transparent; }
+    .spin-ring-1 { position: absolute; top: 0; left: 0; width: 65px; height: 65px; border: 2px solid transparent; border-top: 2px solid #b500ff; border-bottom: 2px solid #b500ff; border-radius: 50%; animation: premiumCircleSpin 1.5s linear infinite; z-index: 2; pointer-events: none; box-sizing: border-box; } 
+    .spin-ring-2 { position: absolute; top: 5px; left: 5px; width: 55px; height: 55px; border: 2px dashed transparent; border-left: 2px dashed #ffffff; border-right: 2px dashed #b500ff; border-radius: 50%; animation: premiumCircleSpin 1.8s linear infinite reverse; z-index: 3; pointer-events: none; box-sizing: border-box; } 
+    #mini img{ width: 45px; height: 45px; object-fit: cover; border-radius: 50%; border: 2px solid #b500ff; position: relative; z-index: 4; background: #1a0033; display: block; box-shadow: 0 0 10px #b500ff; box-sizing: border-box; } 
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-title">ROYAL 9X PANEL</div>
+        <input type="password" id="login-pass" placeholder="ENTER PASSWORD">
+        <button class="login-btn" onclick="checkLogin()">LOGIN</button>
+        <div id="login-error"></div>
+    </div>
+</div>
+
+<!-- Perfect Fit Background Website -->
+<iframe id="bg-iframe" src="https://shreewin.io/#/login"></iframe>
+<div id="drag-overlay"></div>
+
+<!-- Floating Mod Menu -->
+<div id="mod-menu-container">
+    <div id="mini">
+        <div class="spin-ring-1"></div>
+        <div class="spin-ring-2"></div>
+        <img src="yaarlogo.png" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23408\'/><text x=\'50\' y=\'65\' font-size=\'40\' fill=\'white\' text-anchor=\'middle\' font-family=\'sans-serif\'>V</text></svg>';">
+    </div>
+
+    <div id="main-wrapper">
+        <div id="main">
+            <div class="main-inner-solid"></div> 
+            <div class="header"><div class="title-text">ROYAL 9X PANEL</div></div>
+            <div class="sys-bar">
+                <div style="display:flex; align-items:center;"><span class="live-dot"></span>LIVE</div>
+                <div>MOD : ON</div>
+                <div id="ping-text">PING : 20MS</div>
+            </div>
+            <div id="content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // === LOGIN VERIFICATION ===
+    function checkLogin() {
+        var pwd = document.getElementById('login-pass').value;
+        if(pwd === 'ROYAL') {
+            // Hide login screen
+            document.getElementById('login-screen').style.display = 'none';
+            // Show main elements
+            document.getElementById('bg-iframe').style.display = 'block';
+            document.getElementById('mod-menu-container').style.display = 'block';
+        } else {
+            document.getElementById('login-error').innerText = 'INVALID PASSWORD!';
+        }
+    }
+
+    // === SYSTEM VARIABLES ===
+    var state = 'ready'; 
+    var isScanning = false; 
+    var currentResultNum = '8'; 
+    var currentPeriod = null; 
+    var lastFetchedPrd = ''; 
+    var isOpen = false; 
+
+    // Fake Ping Animation
+    setInterval(function(){ 
+        var pt = document.getElementById('ping-text'); 
+        if(pt){ pt.innerText = 'PING : ' + (Math.floor(Math.random() * 31) + 20) + 'MS'; } 
+    }, 1000);
+
+    // === UI OPEN / CLOSE LOGIC ===
+    function openM(){ 
+        if(isOpen) return; 
+        isOpen = true; 
+        document.getElementById('main-wrapper').style.display='flex'; 
+        document.getElementById('main').style.display='flex'; 
+        document.getElementById('mini').style.display='none'; 
+        render(); 
+    }
+
+    function closeM(){ 
+        isOpen = false; 
+        document.getElementById('main-wrapper').style.display='none'; 
+        document.getElementById('mini').style.display='flex'; 
+    }
+
+    function actionClick() { 
+        if(!isScanning) generateNewResult(); 
+    }
+
+    // === API LOGIC ===
+    function generateNewResult(){ 
+        isScanning = true; 
+        state = 'scanning'; 
+        render(); 
+        
+        fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json') 
+        .then(function(res){ return res.json(); }) 
+        .then(function(data){ 
+            var last = data.data.list[0]; 
+            var n = parseInt(last.number); 
+            var p = String(last.issueNumber); 
+            
+            lastFetchedPrd = p; 
+            setTimeout(function() { 
+                currentResultNum = n; 
+                currentPeriod = p; 
+                state = 'result'; 
+                isScanning = false; 
+                render(); 
+            }, 4000); 
+        }).catch(function(){ 
+            setTimeout(function() { 
+                currentResultNum = Math.floor(Math.random() * 10); 
+                state = 'result'; 
+                isScanning = false; 
+                render(); 
+            }, 4000); 
+        }); 
+    }
+
+    // === MAIN RENDERER ===
+    function render(){ 
+        var cont = document.getElementById('content'); 
+        if(!cont) return; 
+        
+        if(state == 'ready'){ 
+            cont.innerHTML = `
+                <div class="ai-result-box">
+                    <div class="text-group">
+                        <div class="status-title">HACK READY</div>
+                        <div class="status-sub"> VIP MODE</div>
+                        <div class="status-desc">BYPASS SERVER SECURED</div>
+                    </div>
+                </div>
+                <div class="buttons-area">
+                    <button class="btn btn-action" onclick="actionClick()">START</button>
+                    <button class="btn btn-hide" onclick="closeM()">HIDE</button>
+                </div>
+            `; 
+        } 
+        else if(state == 'scanning'){ 
+            cont.innerHTML = `
+                <div class="ai-result-box" style="justify-content:center; position:relative; background-image:none !important;">
+                    <div class="matrix-code" id="matrix-code"></div>
+                    <div class="full-box-scan-line"></div>
+                </div>
+                <div class="buttons-area">
+                    <button class="btn btn-hide" onclick="closeM()" style="width:100%;">HIDE</button>
+                </div>
+            `; 
+            clearInterval(window.progInt); 
+            var p=0; 
+            window.progInt = setInterval(function(){ 
+                p++; 
+                var mc = document.getElementById('matrix-code'); 
+                if(mc){ 
+                    var arr=['> Bypassing Algorithm•••','> Connecting Server•••','> Decrypting Database•••','> Generate Secure Result•••','> Output Ready•••']; 
+                    var idx = Math.floor((p/100)*arr.length); 
+                    if(idx>=arr.length) idx=arr.length-1; 
+                    mc.innerHTML = arr.slice(0,idx+1).join('<br>'); 
+                } 
+                if(p>=100) clearInterval(window.progInt); 
+            }, 38); 
+        } 
+        else if(state == 'result'){ 
+            var last5 = currentPeriod ? currentPeriod.slice(-5) : '00000'; 
+            
+            var numImgSrc = `num_${currentResultNum}.png`;
+            var fallbackSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23fff'/><text x='50' y='68' font-size='50' font-weight='bold' fill='%23b0f' text-anchor='middle' font-family='sans-serif'>${currentResultNum}</text></svg>`;
+            
+            var imgSmall = `<div class="num-container num-small"><div class="num-spin-border"></div><img class="result-num-img" src="${numImgSrc}" onerror="this.onerror=null; this.src='${fallbackSvg}';"></div>`; 
+            var imgBig = `<div class="num-container num-big"><div class="num-spin-border"></div><img class="result-num-img" src="${numImgSrc}" onerror="this.onerror=null; this.src='${fallbackSvg}';"></div>`; 
+            var numImageTag = imgSmall + imgBig + imgSmall; 
+            
+            cont.innerHTML = `
+                <div class="ai-result-box">
+                    <div class="ai-result-row">${numImageTag}</div>
+                    <div class="period-wrapper">
+                        <div class="glass-period-box">SEQ NO : ${last5}</div>
+                    </div>
+                </div>
+                <div class="buttons-area">
+                    <button class="btn btn-action" onclick="actionClick()">EXECUTE</button>
+                    <button class="btn btn-hide" onclick="closeM()">HIDE</button>
+                </div>
+            `; 
+        } 
+    }
+
+    // === LIVE WINNING NOTIFICATION ===
+    (function(){ 
+       if(window.hasFakeNotify) return; window.hasFakeNotify = true; 
+       var s = document.createElement('style'); 
+       s.innerHTML = '#fake-notify-container { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 9999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; width: 92%; max-width: 320px; perspective: 1000px; } ' + 
+       '.fake-toast { background: linear-gradient(135deg, rgba(30, 0, 0, 0.95), rgba(15, 0, 0, 0.98)); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 50, 50, 0.3); border-left: 4px solid #ff0033; border-radius: 14px; padding: 10px 14px; color: #fff; font-family: \'Segoe UI\', Roboto, Helvetica, sans-serif; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 15px rgba(255,0,0,0.25); animation: toastEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards, toastExit 0.5s ease-in 3.5s forwards; position: relative; overflow: hidden; } ' + 
+       '.fake-toast .icon-wrapper { width: 42px; height: 42px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, #ff0033, #ff6600); box-shadow: 0 0 15px rgba(255,0,51,0.5); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; } ' + 
+       '.fake-toast .icon-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #1a0000; background: #2a0000; } ' + 
+       '.fake-toast .text-col { display: flex; flex-direction: column; line-height: 1.3; overflow: hidden; flex-grow: 1; } ' + 
+       '.fake-toast .title { font-size: 11px; color: #ff8080; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; } ' + 
+       '.fake-toast .desc { font-size: 15px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } ' + 
+       '.fake-toast .amt { color: #00ff66; text-shadow: 0 0 8px rgba(0,255,102,0.5); font-weight: 900; } ' + 
+       '@keyframes toastEnter { from { opacity: 0; transform: translateY(-40px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } } ' + 
+       '@keyframes toastExit { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-30px) scale(0.9); } }'; 
+       document.head.appendChild(s); 
+       var c = document.createElement('div'); c.id = 'fake-notify-container'; document.body.appendChild(c); 
+       var fNames = ['Aarav','Vihaan','Aditya','Sai','Arjun','Siddharth','Rohan','Rahul','Amit','Vikram','Neha','Priya','Anjali','Kavya','Sneha','Pooja','Riya','Kriti','Ishaan','Dhruv','Kabir','Aryan','Ayaan','Krishna','Ravi','Suresh','Ramesh','Deepak','Manoj','Sanjay','Rajesh','Pankaj','Sunil','Anil','Vijay','Ajay','Karan','Tarun','Varun','Nitin','Nikhil','Gaurav','Akash','Vikas','Manish','Satish','Prakash','Ashish','Suraj','Mohit','Rohit','Sachin','Kapil','Yash','Tushar','Prashant','Aman','Anand','Ankit','Ashok','Atul','Bharat','Bipin','Chandan','Chetan','Darshan','Dinesh','Gagan','Ganesh','Girish','Gopal','Harish','Hemant','Hitesh','Jatin','Jay','Jitendra','Kamal','Kartik','Kishore','Kunal','Lalit','Mahesh','Mayank','Mukesh','Naveen','Neeraj','Om','Parveen','Pawan','Piyush','Pramod','Pradeep','Pravin','Prem','Puneet','Raghav','Rajan','Rajat','Rakesh', 'Saurabh', 'Shivam', 'Shubham', 'Sumit', 'Surya', 'Uday', 'Utkarsh', 'Vaibhav', 'Vedant', 'Vinay', 'Vipin', 'Vishal', 'Vivek', 'Yogesh', 'Brijesh', 'Chirag', 'Dharmendra', 'Dheeraj', 'Govind', 'Gulshan', 'Hari', 'Hemendra', 'Jagdish', 'Kailash', 'Kalyan', 'Kanhaiya', 'Laxman', 'Madhav', 'Narayan', 'Narendra']; 
+       var lNames = ['Yadav','Singh','Mishra','Kumar','Gupta','Pandit','Verma','Das','Rajput']; 
+       setInterval(function(){ 
+           var nameIndex = Math.floor(Math.random() * fNames.length); 
+           var n = fNames[nameIndex] + ' ' + lNames[Math.floor(Math.random() * lNames.length)]; 
+           var amt = Math.floor(Math.random() * 9000) + 100; 
+           var imgId = (nameIndex % 5) + 1; 
+           var base64Img = ''; 
+           try { base64Img = window.TeamBridge.getBase64Image('user' + imgId); } catch(e){} 
+           var avatarSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ff0033'/><circle cx='50' cy='35' r='18' fill='%23fff'/><path d='M20 90 Q 50 50 80 90' stroke='%23fff' stroke-width='10' fill='none'/></svg>";
+           var imgTag = base64Img ? '<img src="' + base64Img + '">' : '<img src="user' + imgId + '.png" onerror="this.onerror=null; this.src=\'' + avatarSvg + '\';">'; 
+           var t = document.createElement('div'); t.className = 'fake-toast'; 
+           t.innerHTML = '<div class="icon-wrapper">' + imgTag + '</div><div class="text-col"><span class="title">Live Winning</span><span class="desc">' + n + ' won <span class="amt">₹' + amt + '</span></span></div>'; 
+           c.appendChild(t); 
+           setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 4000); 
+       }, 7000); 
+    })();
+
+    // === ADVANCED DRAG & DROP LOGIC ===
+    (function initDraggable() {
+        var container = document.getElementById('mod-menu-container');
+        var mini = document.getElementById('mini');
+        var mainUI = document.getElementById('main');
+        var overlay = document.getElementById('drag-overlay');
+        
+        var isDragging = false;
+        var startX, startY, initialX, initialY;
+        var isClick = true; 
+
+        function startDrag(e) {
+            if (e.target.closest('.btn') || document.getElementById('login-screen').style.display !== 'none') {
+                return;
+            }
+
+            isDragging = true;
+            isClick = true;
+            overlay.style.display = 'block'; 
+            
+            var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            startX = clientX;
+            startY = clientY;
+            initialX = container.offsetLeft;
+            initialY = container.offsetTop;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            if (e.cancelable) { e.preventDefault(); }
+            
+            var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            var dx = clientX - startX;
+            var dy = clientY - startY;
+            
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) { isClick = false; }
+            
+            container.style.left = (initialX + dx) + 'px';
+            container.style.top = (initialY + dy) + 'px';
+        }
+
+        function endDrag(e, isMiniCheck) {
+            if (!isDragging) return;
+            isDragging = false;
+            overlay.style.display = 'none'; 
+            
+            if (isClick && isMiniCheck) { openM(); }
+        }
+
+        mini.addEventListener('mousedown', startDrag);
+        mini.addEventListener('touchstart', startDrag, {passive: false});
+        
+        mainUI.addEventListener('mousedown', startDrag);
+        mainUI.addEventListener('touchstart', startDrag, {passive: false});
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, {passive: false});
+        
+        document.addEventListener('mouseup', function(e){ endDrag(e, !isOpen); });
+        document.addEventListener('touchend', function(e){ endDrag(e, !isOpen); });
+    })();
+</script>
+</body>
+</html>
